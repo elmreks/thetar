@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TAR — Technical Achievement Registry</title>
+  <style>
+    :root {
+      --bg: #f3f0e8;
+      --paper: #fcfaf5;
+      --ink: #1b1b1b;
+      --muted: #5e5a52;
+      --line: #c8c1b3;
+      --accent: #1e4d40;
+      --accent-2: #7a1f1f;
+      --link: #0f5b66;
+      --link-hover: #1d7f73;
+      --stamp: rgba(122, 31, 31, 0.15);
+      --shadow: 0 10px 30px rgba(0,0,0,0.08);
+      --max: 1120px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", Times, serif;
+      background: linear-gradient(180deg, #ece7dc 0%, var(--bg) 38%, #efe9de 100%);
+      color: var(--ink);
+      line-height: 1.55;
+    }
+
+    a {
+      color: var(--link);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 2px;
+    }
+
+    a:hover {
+      color: var(--link-hover);
+    }
+
+    .shell {
+      width: min(calc(100% - 2rem), var(--max));
+      margin: 0 auto;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(10px);
+      background: rgba(243, 240, 232, 0.9);
+      border-bottom: 1px solid rgba(27, 27, 27, 0.08);
+    }
+
+    .topbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.85rem 0;
+      font-size: 0.95rem;
+    }
+
+    .brand {
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .brand small {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-top: 0.15rem;
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .nav a {
+      text-decoration: none;
+      color: var(--muted);
+    }
+
+    .nav a:hover {
+      color: var(--ink);
+    }
+
+    .hero {
+      padding: 4.5rem 0 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      padding: 0.35rem 0.65rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      background: rgba(255,255,255,0.45);
+    }
+
+    h1 {
+      font-size: clamp(2.6rem, 6vw, 5.2rem);
+      line-height: 0.96;
+      margin: 0.9rem 0 1rem;
+      letter-spacing: -0.04em;
+      text-transform: uppercase;
+    }
+
+    .hero p.lead {
+      font-size: 1.2rem;
+      max-width: 42rem;
+      color: #25231f;
+      margin: 0 0 1.25rem;
+    }
+
+    .hero p.lead strong {
+      color: var(--accent-2);
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.85rem;
+      margin: 1.5rem 0 1.25rem;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.9rem 1.15rem;
+      border-radius: 999px;
+      border: 1px solid var(--ink);
+      text-decoration: none;
+      color: var(--ink);
+      background: transparent;
+      font-weight: 700;
+      transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow);
+      color: var(--ink);
+    }
+
+    .button.primary {
+      background: var(--ink);
+      color: #f8f5ef;
+      border-color: var(--ink);
+    }
+
+    .button.primary:hover {
+      color: #f8f5ef;
+      background: #000;
+    }
+
+    .hero-note {
+      font-size: 0.98rem;
+      color: var(--muted);
+      max-width: 42rem;
+    }
+
+    .doc-card,
+    .section-card,
+    .record-card,
+    .pitch-card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .doc-card {
+      padding: 1.25rem;
+      position: relative;
+      min-height: 100%;
+    }
+
+    .stamp {
+      position: absolute;
+      right: 1rem;
+      top: 1rem;
+      border: 2px solid rgba(122,31,31,0.35);
+      color: rgba(122,31,31,0.7);
+      padding: 0.45rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      transform: rotate(-9deg);
+      background: var(--stamp);
+    }
+
+    .doc-card h2 {
+      margin: 0 0 0.5rem;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .doc-meta {
+      font-size: 0.82rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 1rem;
+    }
+
+    .doc-block {
+      border-top: 1px dashed var(--line);
+      padding-top: 0.85rem;
+      margin-top: 0.85rem;
+      font-size: 0.98rem;
+    }
+
+    .doc-block strong {
+      display: block;
+      margin-bottom: 0.2rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    section {
+      padding: 1.2rem 0 3.2rem;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .section-head h2 {
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      margin: 0;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+    }
+
+    .section-head p {
+      max-width: 42rem;
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .principles {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .section-card {
+      padding: 1.2rem;
+    }
+
+    .section-card h3 {
+      margin: 0 0 0.55rem;
+      font-size: 1.02rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .records {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .record-card {
+      padding: 1.1rem;
+    }
+
+    .record-no {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin-bottom: 0.45rem;
+    }
+
+    .record-card h3 {
+      margin: 0 0 0.65rem;
+      font-size: 1.12rem;
+      line-height: 1.15;
+    }
+
+    .record-card dl {
+      margin: 0;
+      display: grid;
+      gap: 0.45rem;
+    }
+
+    .record-card dt {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-bottom: 0.1rem;
+    }
+
+    .record-card dd {
+      margin: 0;
+    }
+
+    .status {
+      display: inline-block;
+      margin-top: 0.7rem;
+      padding: 0.3rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid rgba(30,77,64,0.25);
+      color: var(--accent);
+      background: rgba(30,77,64,0.07);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+
+    .framework {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 1rem;
+    }
+
+    .legal-list {
+      margin: 0;
+      padding-left: 1.15rem;
+    }
+
+    .legal-list li { margin-bottom: 0.65rem; }
+
+    .pitches {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+
+    .pitch-card {
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .pitch-card h3 {
+      margin: 0;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .pitch-card p {
+      margin: 0;
+      color: var(--muted);
+      flex: 1;
+    }
+
+    .pitch-card a {
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .footer {
+      padding: 2rem 0 4rem;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .footer-line {
+      border-top: 1px solid var(--line);
+      padding-top: 1rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 980px) {
+      .hero-grid,
+      .framework,
+      .principles,
+      .records,
+      .pitches {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .hero-grid > :first-child {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .topbar-inner,
+      .section-head,
+      .footer-line {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .hero {
+        padding-top: 3.3rem;
+      }
+
+      .hero-grid,
+      .framework,
+      .principles,
+      .records,
+      .pitches {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 2.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <div class="brand">
+        TAR
+        <small>Technical Achievement Registry</small>
+      </div>
+      <nav class="nav" aria-label="Main navigation">
+        <a href="#principles">Principles</a>
+        <a href="#records">Records</a>
+        <a href="#framework">Framework</a>
+        <a href="#resources">Resources</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="shell hero-grid">
+        <div>
+          <span class="eyebrow">Public Demonstration Draft</span>
+          <h1>Technical Achievement Registry</h1>
+          <p class="lead">
+            <strong>TAR</strong> is the world’s leading authority on the certification of technically valid accomplishments: achievements that may be trivial, dubious, reckless, bureaucratically suspicious, or otherwise deeply unnecessary, but which <em>technically occurred</em>.
+          </p>
+          <p class="lead">
+            This project treats absurd human behavior with the dry procedural seriousness of a standards body, legal archive, and nonprofit bureaucracy that should not exist but unfortunately does.
+          </p>
+          <div class="cta-row">
+            <a class="button primary" href="#records">Review Certified Records</a>
+            <a class="button" href="#resources">View Supporting Documents</a>
+          </div>
+          <p class="hero-note">
+            Foundational doctrine: <strong>If it technically happened, it counts.</strong>
+          </p>
+        </div>
+
+        <aside class="doc-card" aria-label="Sample certified record">
+          <div class="stamp">Technically Valid</div>
+          <h2>Provisional Certification Record #0001</h2>
+          <div class="doc-meta">Filed under: Digital Achievement / Wordplay Compliance / Public Nuisance Adjacent</div>
+
+          <div class="doc-block">
+            <strong>Record Title</strong>
+            Most Dick Pics Sent in One Day
+          </div>
+
+          <div class="doc-block">
+            <strong>Method</strong>
+            Participant transmitted images of historically significant individuals named Richard.
+          </div>
+
+          <div class="doc-block">
+            <strong>Verification</strong>
+            Text message archive, witness testimony, and basic linguistic shamelessness.
+          </div>
+
+          <div class="doc-block">
+            <strong>Technical Legitimacy</strong>
+            A “Dick pic” is, by ordinary bureaucratic interpretation, a picture of Dick.
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="principles">
+      <div class="shell">
+        <div class="section-head">
+          <div>
+            <h2>Operating Principles</h2>
+            <p>The joke works best when the institution stays serious, the language stays formal, and the underlying achievement is ridiculous enough to deserve documentation.</p>
+          </div>
+        </div>
+
+        <div class="principles">
+          <article class="section-card">
+            <h3>1. Technical Validity</h3>
+            <p>An event qualifies when it technically occurred, regardless of dignity, usefulness, athletic merit, or whether anyone involved should have gone home earlier.</p>
+          </article>
+          <article class="section-card">
+            <h3>2. Deadpan Bureaucracy</h3>
+            <p>All copy should read like a standards agency, legal filing, or nonprofit certification board documenting nonsense with inappropriate confidence.</p>
+          </article>
+          <article class="section-card">
+            <h3>3. Witness Flexibility</h3>
+            <p>Acceptable evidence includes photos, screenshots, bar staff confirmation, witness statements, and stories that are simply too specific to be fabricated well.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="records">
+      <div class="shell">
+        <div class="section-head">
+          <div>
+            <h2>Sample Certified Records</h2>
+            <p>Seed entries should establish the tone: official structure, absurd premise, and airtight technical reasoning.</p>
+          </div>
+        </div>
+
+        <div class="records">
+          <article class="record-card">
+            <div class="record-no">Record #0001</div>
+            <h3>Most Dick Pics Sent in One Day</h3>
+            <dl>
+              <div>
+                <dt>Method</dt>
+                <dd>Images of historically significant individuals named Richard were transmitted in volume.</dd>
+              </div>
+              <div>
+                <dt>Verification</dt>
+                <dd>Text thread and witness review.</dd>
+              </div>
+            </dl>
+            <span class="status">Technically Valid</span>
+          </article>
+
+          <article class="record-card">
+            <div class="record-no">Record #0002</div>
+            <h3>Most Dramatically Consumed Banana in a Crowded Bar</h3>
+            <dl>
+              <div>
+                <dt>Method</dt>
+                <dd>Banana consumed with sustained theatrical intent and unnecessary eye contact.</dd>
+              </div>
+              <div>
+                <dt>Verification</dt>
+                <dd>Confused patrons and one witness attempting not to laugh.</dd>
+              </div>
+            </dl>
+            <span class="status">Technically Valid</span>
+          </article>
+
+          <article class="record-card">
+            <div class="record-no">Record #0003</div>
+            <h3>Longest Distance Traveled on a Shared Skateboard After Partner Immediately Bailed</h3>
+            <dl>
+              <div>
+                <dt>Method</dt>
+                <dd>Two-person attempt collapsed into accidental solo continuation in live street conditions.</dd>
+              </div>
+              <div>
+                <dt>Verification</dt>
+                <dd>Street witnesses, near-split injury, and general public concern.</dd>
+              </div>
+            </dl>
+            <span class="status">Technically Valid</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="framework">
+      <div class="shell">
+        <div class="section-head">
+          <div>
+            <h2>Regulatory Framework</h2>
+            <p>The institution should publish rules as though they were drafted by a committee of dry attorneys, mildly hungover administrators, and one very committed copywriter.</p>
+          </div>
+        </div>
+
+        <div class="framework">
+          <article class="section-card">
+            <h3>Selected Articles</h3>
+            <ol class="legal-list">
+              <li><strong>Article 1 — Technical Validity.</strong> An achievement shall be recognized when it technically occurred.</li>
+              <li><strong>Article 2 — Witness Standards.</strong> Valid witnesses may include bar staff, friends, strangers, and anybody willing to say “yeah, I saw that.”</li>
+              <li><strong>Article 3 — Evidence Requirements.</strong> Evidence may consist of photos, video, screenshots, or compelling narrative detail.</li>
+              <li><strong>Article 4 — Jurisdiction.</strong> TAR recognizes accomplishments occurring globally, locally, in bars, in basements, on sidewalks, and on skateboards.</li>
+              <li><strong>Article 5 — Appeals Process.</strong> Appeals shall be reviewed and ignored in the order received.</li>
+            </ol>
+          </article>
+
+          <article class="section-card">
+            <h3>Commercial Potential</h3>
+            <p>The concept is intentionally stupid in a way that can become useful: bar record nights, sponsor-backed challenge events, cheap paid certifications, community submissions, and bureaucratic fake-merch that people actually want to wear.</p>
+            <p>Potential lines include “Certified by TAR,” “Technically a Champion,” and “Officially Dubious Achievement Holder.”</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="resources">
+      <div class="shell">
+        <div class="section-head">
+          <div>
+            <h2>Supporting Documents & Pitch Materials</h2>
+            <p>Below the fold resources for concept review, future fundraising, event outreach, and general project explanation. Replace placeholder links with live files when ready.</p>
+          </div>
+        </div>
+
+        <div class="pitches">
+          <article class="pitch-card">
+            <h3>Project Summary</h3>
+            <p>Foundational principles, features, categories, tone, and the logic of the fake institution.</p>
+            <a href="./tar-summary.md">Open summary file →</a>
+          </article>
+
+          <article class="pitch-card">
+            <h3>General Pitch</h3>
+            <p>Plain-English explanation of the idea for friends, collaborators, and possible co-conspirators.</p>
+            <a href="./tar-general-pitch.md">Open general pitch →</a>
+          </article>
+
+          <article class="pitch-card">
+            <h3>Bar Event Pitch</h3>
+            <p>How a venue could host TAR record nights, generate social content, and make the whole room weirder in a productive way.</p>
+            <a href="./tar-bar-event-pitch.md">Open bar event pitch →</a>
+          </article>
+
+          <article class="pitch-card">
+            <h3>Booze Brand Pitch</h3>
+            <p>Ridiculous but sponsor-friendly partnership framing for liquor, beer, or nightlife brands that enjoy publicity.</p>
+            <a href="./tar-booze-brand-pitch.md">Open booze brand pitch →</a>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="shell footer-line">
+      <div>
+        <strong>Technical Achievement Registry (TAR)</strong><br />
+        Officially certifying accomplishments that technically occurred.
+      </div>
+      <div>
+        Demonstration landing page for GitHub Pages publishing.<br />
+        Domain target: <strong>THETAR.org</strong>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
